@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stack Tecnológico — Proyecto Excelia</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f3;
+      --bg3: #eeede9;
+      --text: #1a1a18;
+      --text2: #6b6b66;
+      --text3: #9c9a92;
+      --border: rgba(0,0,0,0.10);
+      --border2: rgba(0,0,0,0.18);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #252523;
+        --bg3: #2e2e2b;
+        --text: #e8e6de;
+        --text2: #9c9a92;
+        --text3: #6b6b66;
+        --border: rgba(255,255,255,0.10);
+        --border2: rgba(255,255,255,0.18);
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+    }
+
+    .project-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      background: var(--bg3);
+      border: 0.5px solid var(--border2);
+      border-radius: 20px;
+      padding: 3px 12px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(22px, 4vw, 30px);
+      font-weight: 600;
+      letter-spacing: -.02em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text2);
+    }
+
+    /* Stats bar */
+    .stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0 2rem;
+      padding: 14px 18px;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+    .stat { font-size: 13px; color: var(--text2); }
+    .stat strong { color: var(--text); font-weight: 500; }
+    .stat-sep { color: var(--border2); user-select: none; }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 0.5px solid var(--border2);
+      background: transparent;
+      color: var(--text2);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filter-btn:hover { border-color: var(--text3); color: var(--text); }
+
+    .filter-btn.active[data-cat="all"]      { background: var(--bg3); border-color: var(--border2); color: var(--text); font-weight: 500; }
+    .filter-btn.active[data-cat="entorno"]  { background: #E6F1FB; border-color: #185FA5; color: #185FA5; font-weight: 500; }
+    .filter-btn.active[data-cat="vscode"]   { background: #EEEDFE; border-color: #534AB7; color: #534AB7; font-weight: 500; }
+    .filter-btn.active[data-cat="gestion"]  { background: #EAF3DE; border-color: #3B6D11; color: #3B6D11; font-weight: 500; }
+    .filter-btn.active[data-cat="ia"]       { background: #FAEEDA; border-color: #854F0B; color: #854F0B; font-weight: 500; }
+    .filter-btn.active[data-cat="runtime"]  { background: #E1F5EE; border-color: #0F6E56; color: #0F6E56; font-weight: 500; }
+    .filter-btn.active[data-cat="servidor"] { background: #FAECE7; border-color: #993C1D; color: #993C1D; font-weight: 500; }
+    .filter-btn.active[data-cat="app"]      { background: #FBEAF0; border-color: #993556; color: #993556; font-weight: 500; }
+    .filter-btn.active[data-cat="bbdd"]     { background: #F1EFE8; border-color: #5F5E5A; color: #5F5E5A; font-weight: 500; }
+    .filter-btn.active[data-cat="infra"]    { background: #FCEBEB; border-color: #A32D2D; color: #A32D2D; font-weight: 500; }
+
+    @media (prefers-color-scheme: dark) {
+      .filter-btn.active[data-cat="entorno"]  { background: #0c3150; border-color: #378ADD; color: #85B7EB; }
+      .filter-btn.active[data-cat="vscode"]   { background: #1e1b44; border-color: #7F77DD; color: #AFA9EC; }
+      .filter-btn.active[data-cat="gestion"]  { background: #1a2d0a; border-color: #639922; color: #97C459; }
+      .filter-btn.active[data-cat="ia"]       { background: #2d1f05; border-color: #BA7517; color: #EF9F27; }
+      .filter-btn.active[data-cat="runtime"]  { background: #043320; border-color: #1D9E75; color: #5DCAA5; }
+      .filter-btn.active[data-cat="servidor"] { background: #2d1008; border-color: #D85A30; color: #F0997B; }
+      .filter-btn.active[data-cat="app"]      { background: #2d0e1e; border-color: #D4537E; color: #ED93B1; }
+      .filter-btn.active[data-cat="bbdd"]     { background: #222220; border-color: #888780; color: #B4B2A9; }
+      .filter-btn.active[data-cat="infra"]    { background: #2d0c0c; border-color: #E24B4A; color: #F09595; }
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text3);
+      pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      padding: 9px 12px 9px 36px;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+    }
+    #search:focus { border-color: var(--text2); }
+    #search::placeholder { color: var(--text3); }
+
+    /* Section label */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin: 2rem 0 .75rem 28px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* Timeline lane */
+    .lane {
+      position: relative;
+      padding-left: 28px;
+    }
+    .lane::before {
+      content: '';
+      position: absolute;
+      left: 9px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    /* Item */
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 9px 0;
+      cursor: pointer;
+      transition: opacity .1s;
+    }
+    .item:hover { opacity: .85; }
+
+    .dot-col {
+      position: relative;
+      width: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 5px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-entorno  { background: #378ADD; }
+    .dot-vscode   { background: #7F77DD; }
+    .dot-gestion  { background: #639922; }
+    .dot-ia       { background: #BA7517; }
+    .dot-runtime  { background: #1D9E75; }
+    .dot-servidor { background: #D85A30; }
+    .dot-app      { background: #D4537E; }
+    .dot-bbdd     { background: #888780; }
+    .dot-infra    { background: #E24B4A; }
+
+    .item-body { flex: 1; min-width: 0; }
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .item-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 10px;
+      letter-spacing: .03em;
+    }
+    .badge-entorno  { background: #E6F1FB; color: #185FA5; }
+    .badge-vscode   { background: #EEEDFE; color: #534AB7; }
+    .badge-gestion  { background: #EAF3DE; color: #3B6D11; }
+    .badge-ia       { background: #FAEEDA; color: #854F0B; }
+    .badge-runtime  { background: #E1F5EE; color: #0F6E56; }
+    .badge-servidor { background: #FAECE7; color: #993C1D; }
+    .badge-app      { background: #FBEAF0; color: #993556; }
+    .badge-bbdd     { background: #F1EFE8; color: #5F5E5A; }
+    .badge-infra    { background: #FCEBEB; color: #A32D2D; }
+
+    @media (prefers-color-scheme: dark) {
+      .badge-entorno  { background: #0c3150; color: #85B7EB; }
+      .badge-vscode   { background: #1e1b44; color: #AFA9EC; }
+      .badge-gestion  { background: #1a2d0a; color: #97C459; }
+      .badge-ia       { background: #2d1f05; color: #EF9F27; }
+      .badge-runtime  { background: #043320; color: #5DCAA5; }
+      .badge-servidor { background: #2d1008; color: #F0997B; }
+      .badge-app      { background: #2d0e1e; color: #ED93B1; }
+      .badge-bbdd     { background: #222220; color: #B4B2A9; }
+      .badge-infra    { background: #2d0c0c; color: #F09595; }
+    }
+
+    .item-desc {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .item-detail {
+      display: none;
+      font-size: 12px;
+      color: var(--text2);
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+    .item.open .item-detail { display: block; }
+
+    .chevron {
+      font-size: 14px;
+      color: var(--text3);
+      margin-left: auto;
+      padding-top: 3px;
+      flex-shrink: 0;
+      transition: transform .2s;
+      user-select: none;
+    }
+    .item.open .chevron { transform: rotate(90deg); }
+
+    .no-results {
+      font-size: 14px;
+      color: var(--text3);
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 0.5px solid var(--border);
+      font-size: 12px;
+      color: var(--text3);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="project-tag">Proyecto Excelia</div>
+    <h1>Stack Tecnológico</h1>
+    <p class="subtitle">Herramientas, frameworks y servicios que componen el entorno completo del proyecto.</p>
+    <div class="stats">
+      <span class="stat"><strong id="count-visible">49</strong> tecnologías</span>
+      <span class="stat-sep">·</span>
+      <span class="stat"><strong>9</strong> categorías</span>
+      <span class="stat-sep">·</span>
+      <span class="stat"><strong>PHP 8.4</strong> / <strong>Laravel 11–12</strong></span>
+      <span class="stat-sep">·</span>
+      <span class="stat"><strong>Node.js 20 LTS</strong></span>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" id="search" placeholder="Buscar tecnología…" autocomplete="off" />
+  </div>
+
+  <div class="filter-bar" id="filters">
+    <button class="filter-btn active" data-cat="all">Todas</button>
+    <button class="filter-btn" data-cat="entorno">Entorno local</button>
+    <button class="filter-btn" data-cat="vscode">VSCode</button>
+    <button class="filter-btn" data-cat="gestion">Gestión</button>
+    <button class="filter-btn" data-cat="ia">IA</button>
+    <button class="filter-btn" data-cat="runtime">Runtime</button>
+    <button class="filter-btn" data-cat="servidor">Servidor dev</button>
+    <button class="filter-btn" data-cat="app">Aplicación</button>
+    <button class="filter-btn" data-cat="bbdd">Bases de datos</button>
+    <button class="filter-btn" data-cat="infra">Infraestructura</button>
+  </div>
+
+  <div id="timeline"></div>
+
+  <footer>Stack Tecnológico · Proyecto Excelia</footer>
+</div>
+
+<script>
+const data = [
+  { cat:"entorno", section:"Herramientas de desarrollo local",
+    name:"WSL2 (Ubuntu)", desc:"Subsistema Linux sobre Windows",
+    detail:"Entorno de ejecución principal del proyecto. Permite usar herramientas Linux nativas desde Windows sin virtualización completa." },
+  { cat:"entorno",
+    name:"VSCode", desc:"IDE principal",
+    detail:"Editor principal de desarrollo. Se amplía con extensiones específicas para PHP, Laravel, Vue y el resto del stack." },
+  { cat:"entorno",
+    name:"Docker + Docker Compose", desc:"Orquestación de contenedores local",
+    detail:"Gestiona los servicios locales mediante /infra/compose.yaml. Levanta bases de datos, RabbitMQ, Nginx y otros servicios en local." },
+  { cat:"entorno",
+    name:"DBeaver", desc:"Cliente de base de datos genérico",
+    detail:"Permite conectarse y explorar bases de datos PostgreSQL y DB2 desde el entorno local." },
+  { cat:"entorno",
+    name:"IBM Access Client Solutions", desc:"Cliente IBM DB2 for i",
+    detail:"Acceso a las bases de datos DB2 for i de los entornos PRE y Producción." },
+  { cat:"entorno",
+    name:"Bruno / Postman", desc:"Testing y exploración de APIs REST",
+    detail:"Herramientas para probar endpoints REST manualmente durante el desarrollo." },
+
+  { cat:"vscode", section:"Extensiones VSCode",
+    name:"WSL (ms-vscode-remote)", desc:"Integración VSCode con Linux",
+    detail:"Conecta el IDE con el subsistema WSL2 para editar y ejecutar código directamente en el entorno Linux." },
+  { cat:"vscode",
+    name:"Intelephense", desc:"Análisis e indexado PHP",
+    detail:"Proporciona autocompletado avanzado, análisis estático y navegación de código PHP." },
+  { cat:"vscode",
+    name:"Laravel Extra Intellisense", desc:"Autocompletado Laravel",
+    detail:"Completa rutas, vistas, configs y helpers de Laravel directamente en el editor." },
+  { cat:"vscode",
+    name:"Composer PHP", desc:"Gestión de dependencias Composer",
+    detail:"Permite gestionar paquetes PHP mediante Composer sin salir del IDE." },
+  { cat:"vscode",
+    name:"GitLens", desc:"Historial Git inline y blame",
+    detail:"Muestra el historial de cambios, blame por línea y comparativas de ramas directamente en el editor." },
+  { cat:"vscode",
+    name:"SonarLint", desc:"Análisis estático en tiempo real",
+    detail:"Detecta problemas de calidad y seguridad en el código mientras se escribe, integrable con el servidor SonarQube del proyecto." },
+  { cat:"vscode",
+    name:"Path Intellisense", desc:"Autocompletado de rutas de archivo",
+    detail:"Sugiere rutas de fichero al escribirlas en el editor." },
+  { cat:"vscode",
+    name:"Tailwind CSS IntelliSense", desc:"Autocompletado de clases Tailwind",
+    detail:"Completa y valida clases de Tailwind CSS al desarrollar el frontend." },
+  { cat:"vscode",
+    name:"Vue — Official (Volar)", desc:"Soporte para ficheros .vue",
+    detail:"Soporte completo para Vue 3: sintaxis, tipos, autocompletado y navegación en archivos .vue." },
+  { cat:"vscode",
+    name:"Markdown Preview Enhanced", desc:"Visor enriquecido de Markdown",
+    detail:"Renderiza archivos Markdown con soporte para diagramas, LaTeX y exportación." },
+  { cat:"vscode",
+    name:"Claude Code (extensión)", desc:"Agente IA integrado en el IDE",
+    detail:"Extensión de Anthropic que integra Claude Code directamente en VSCode para asistencia de código con IA." },
+
+  { cat:"gestion", section:"Herramientas de gestión",
+    name:"Bitbucket", desc:"Repositorio Git + Pull Requests",
+    detail:"Plataforma cloud para control de versiones, revisión de código y Pull Requests del equipo." },
+  { cat:"gestion",
+    name:"Jira", desc:"Gestión de tareas y sprints",
+    detail:"Herramienta de gestión ágil para tareas, sprints e incidencias del proyecto." },
+  { cat:"gestion",
+    name:"Microsoft Teams", desc:"Comunicación del equipo",
+    detail:"Canal principal de comunicación y colaboración del equipo de desarrollo." },
+
+  { cat:"ia", section:"Herramientas de IA",
+    name:"Claude Code (CLI)", desc:"Agente IA en terminal y VSCode",
+    detail:"Agente de Anthropic para desarrollo con IA desde la línea de comandos y como extensión VSCode." },
+  { cat:"ia",
+    name:"Claude (claude.ai)", desc:"Asistente IA conversacional",
+    detail:"Asistente IA cloud de Anthropic para consultas, generación de código y análisis." },
+  { cat:"ia",
+    name:"ChatGPT", desc:"Asistente IA alternativo",
+    detail:"Asistente IA de OpenAI usado como herramienta complementaria." },
+
+  { cat:"runtime", section:"Dependencias en WSL2 (runtime)",
+    name:"PHP 8.4.1", desc:"Runtime de los microservicios Laravel",
+    detail:"Runtime principal del backend. Incluye todas las extensiones necesarias para los microservicios Laravel." },
+  { cat:"runtime",
+    name:"Composer 2.9.5", desc:"Gestión de dependencias PHP",
+    detail:"Gestor de paquetes PHP. Gestiona las dependencias de cada microservicio incluyendo paquetes internos via Satis privado." },
+  { cat:"runtime",
+    name:"Node.js 20.19.6 LTS", desc:"Runtime frontend y tooling JS",
+    detail:"Versión LTS 20.19.6. Ejecuta el build del frontend Vue y las herramientas de desarrollo JavaScript/TypeScript." },
+  { cat:"runtime",
+    name:"NPM 11.9.0", desc:"Gestión de dependencias JS/TS",
+    detail:"Gestor de paquetes de Node.js para el frontend y herramientas JS." },
+  { cat:"runtime",
+    name:"Git 2.43.0", desc:"Control de versiones",
+    detail:"Sistema de control de versiones. Se sincroniza con Bitbucket como repositorio remoto." },
+  { cat:"runtime",
+    name:"Docker CLI 29.1.3", desc:"Cliente Docker",
+    detail:"Cliente CLI de Docker. El daemon corre mediante Docker Desktop en Windows." },
+
+  { cat:"servidor", section:"Servidor de desarrollo (Excelia)",
+    name:"Jenkins", desc:"CI/CD pipelines",
+    detail:"Servidor de integración continua. Usa la librería compartida @Library('sidetours-shared') para los pipelines." },
+  { cat:"servidor",
+    name:"SonarQube Community", desc:"Análisis de calidad de código",
+    detail:"Análisis estático centralizado de calidad y cobertura de código. SonarLint en VSCode se integra con este servidor." },
+  { cat:"servidor",
+    name:"Harbor", desc:"Registry privado de imágenes Docker",
+    detail:"Almacena y distribuye las imágenes Docker construidas por los pipelines de Jenkins." },
+  { cat:"servidor",
+    name:"HashiCorp Vault 1.15", desc:"Gestión de secretos y credenciales",
+    detail:"Gestión centralizada de secretos, tokens y credenciales del proyecto." },
+  { cat:"servidor",
+    name:"Portainer", desc:"Gestión visual de contenedores",
+    detail:"Interfaz web para gestionar y monitorizar los contenedores Docker del servidor de desarrollo." },
+  { cat:"servidor",
+    name:"RabbitMQ 3", desc:"Cola de mensajes",
+    detail:"Sistema de mensajería asíncrona entre microservicios. Dispone de management UI para monitorización." },
+  { cat:"servidor",
+    name:"Kibana 8.17", desc:"Visualización de logs (ELK Stack)",
+    detail:"Parte del stack ELK. Visualiza los logs centralizados de todos los microservicios (Logstash → Elasticsearch → Kibana)." },
+  { cat:"servidor",
+    name:"Uptime Kuma", desc:"Monitorización de disponibilidad",
+    detail:"Herramienta de monitorización de uptime para los servicios del proyecto." },
+  { cat:"servidor",
+    name:"Glaux", desc:"Hub de documentación con IA",
+    detail:"Servicio de documentación del proyecto integrado con IA, conectado al directorio /docs/." },
+
+  { cat:"app", section:"Stack de la aplicación",
+    name:"PHP 8.4 / Laravel 11–12", desc:"Framework principal de microservicios",
+    detail:"Base de todos los microservicios. Arquitectura limpia (Clean Architecture) con directorios app/ y src/ por servicio." },
+  { cat:"app",
+    name:"JWT Auth + Laravel Sanctum", desc:"Autenticación y autorización",
+    detail:"tymon/jwt-auth ^2.2 para JWT y Laravel Sanctum para autenticación de APIs." },
+  { cat:"app",
+    name:"OpenAPI 3.0 (L5-Swagger)", desc:"Documentación de APIs",
+    detail:"Genera documentación OpenAPI 3.0 automáticamente a partir de anotaciones en el código." },
+  { cat:"app",
+    name:"Paquetes internos (Satis privado)", desc:"sidetours/foundation y genbu",
+    detail:"Paquetes internos de la organización distribuidos mediante un servidor Satis privado." },
+  { cat:"app",
+    name:"Pest + PHPUnit + Behat", desc:"Testing — Unit, Integration, BDD",
+    detail:"Suite completa de testing: Pest/PHPUnit para tests unitarios e integración, Behat para BDD." },
+  { cat:"app",
+    name:"Laravel Pint + PHPStan", desc:"Linting y análisis estático",
+    detail:"Laravel Pint para estilo de código PHP y PHPStan para análisis estático de tipos." },
+  { cat:"app",
+    name:"Vue 3 + Tailwind CSS", desc:"Frontend SPA",
+    detail:"Frontend construido con Vue 3 (Volar) y estilos con Tailwind CSS." },
+
+  { cat:"bbdd", section:"Bases de datos",
+    name:"IBM DB2 LUW", desc:"BD principal — contenedor Docker",
+    detail:"Base de datos principal en local y dev. Se levanta como contenedor Docker. Gestionada con DBeaver." },
+  { cat:"bbdd",
+    name:"IBM DB2 for i", desc:"BD principal en UAT/Pre/Producción",
+    detail:"Base de datos en servidor IBM para los entornos superiores. Acceso mediante IBM Access Client Solutions." },
+  { cat:"bbdd",
+    name:"PostgreSQL 15", desc:"Feature flags, SonarQube, eventos",
+    detail:"Usado por Laravel Pennant (feature flags), como base de datos de SonarQube y para eventos." },
+  { cat:"bbdd",
+    name:"Migraciones custom (estilo Flyway)", desc:"Versionado de esquema DB2",
+    detail:"Runner custom basado en Laravel en /migrations/. Gestiona el esquema IBM DB2 con migraciones SQL numeradas." },
+  { cat:"bbdd",
+    name:"Laravel Pennant", desc:"Feature flags con backend PostgreSQL",
+    detail:"Gestión de feature flags del proyecto. Usa PostgreSQL como backend (/migrations/sql/pennant.sql)." },
+
+  { cat:"infra", section:"Infraestructura local",
+    name:"Nginx", desc:"Reverse proxy",
+    detail:"Imagen Docker custom que actúa como reverse proxy para enrutar peticiones a los diferentes microservicios." },
+  { cat:"infra",
+    name:"Portainer (local)", desc:"Gestión visual de contenedores Docker",
+    detail:"Gestión visual de todos los contenedores del entorno local." },
+  { cat:"infra",
+    name:"ELK Stack 8.17", desc:"Logging centralizado",
+    detail:"Logstash → Elasticsearch → Kibana. Centraliza los logs de todos los microservicios para su análisis." },
+];
+
+const TOTAL = data.length;
+let activeCat = 'all';
+let searchQ = '';
+
+function render() {
+  const container = document.getElementById('timeline');
+  container.innerHTML = '';
+  let lastSection = null;
+  let visible = 0;
+  const q = searchQ.toLowerCase();
+
+  data.forEach((d, i) => {
+    const catMatch = activeCat === 'all' || activeCat === d.cat;
+    const searchMatch = !q ||
+      d.name.toLowerCase().includes(q) ||
+      d.desc.toLowerCase().includes(q) ||
+      (d.detail && d.detail.toLowerCase().includes(q)) ||
+      d.cat.toLowerCase().includes(q);
+
+    if (!catMatch || !searchMatch) return;
+    visible++;
+
+    if (d.section && d.section !== lastSection) {
+      const sl = document.createElement('div');
+      sl.className = 'section-label';
+      sl.textContent = d.section;
+      container.appendChild(sl);
+      lastSection = d.section;
+    }
+
+    const item = document.createElement('div');
+    item.className = 'item';
+
+    item.innerHTML = `
+      <div class="dot-col"><div class="dot dot-${d.cat}"></div></div>
+      <div class="item-body">
+        <div class="item-header">
+          <span class="item-name">${highlight(d.name, q)}</span>
+          <span class="badge badge-${d.cat}">${labelFor(d.cat)}</span>
+        </div>
+        <p class="item-desc">${highlight(d.desc, q)}</p>
+        <div class="item-detail">${d.detail}</div>
+      </div>
+      <span class="chevron">›</span>
+    `;
+
+    item.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.item.open').forEach(el => el.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+
+    container.appendChild(item);
+  });
+
+  if (visible === 0) {
+    container.innerHTML = '<p class="no-results">No se encontraron tecnologías para esta búsqueda.</p>';
+  }
+
+  document.getElementById('count-visible').textContent = visible;
+}
+
+function highlight(text, q) {
+  if (!q) return text;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark style="background:rgba(186,117,23,.25);border-radius:2px;padding:0 1px">$1</mark>');
+}
+
+function labelFor(cat) {
+  const map = {
+    entorno:'Entorno local', vscode:'VSCode', gestion:'Gestión',
+    ia:'IA', runtime:'Runtime', servidor:'Servidor dev',
+    app:'Aplicación', bbdd:'Base de datos', infra:'Infraestructura'
+  };
+  return map[cat] || cat;
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  activeCat = btn.dataset.cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  searchQ = e.target.value.trim();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
